@@ -47,22 +47,31 @@
                 <ul class="nav flex-column nav-pills">
                     <div class="dropdown-divider"></div>
                     <li class="nav-item">
-                        <a class="nav-link {% if menu.m1 %}active{% endif %}"
-                           href="{% if menu.m1 %}#{% else %}/menu1{% endif %}">맨유 1</a>
+                        <a class="nav-link dropdown-toggle {% if menu.m1 %}active{% endif %}"
+                           data-toggle="dropdown" href="{% if menu.m1 %}#{% else %}/menu1{% endif %}">데이터탐색</a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="/module/sub1">EDA</a>
+                            <a class="dropdown-item" href="/module/sub2">상관관계분석</a>
+                            <a class="dropdown-item" href="/module/sub3">미정</a>
+                        </div>
                     </li>
                     <div class="dropdown-divider"></div>
                     <li class="nav-item">
-                        <a class="nav-link {% if menu.m2 %}active{% endif %}"
-                           href="{% if menu.m2 %}#{% else %}/menu2{% endif %}">메뉴 2</a>
+                        <a class="nav-link dropdown-toggle {% if menu.m2 %}active{% endif %}"
+                           data-toggle="dropdown" href="{% if menu.m2 %}#{% else %}/menu2{% endif %}">고급데이터탐색</a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="/module/sub1">시공간데이터탐색</a>
+                            <a class="dropdown-item" href="/module/sub2">다변량데이터탐색</a>
+                        </div>
                     </li>
                     <div class="dropdown-divider"></div>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {% if menu.m3 %}active{% endif %}"
-                           data-toggle="dropdown" href="#">메뉴 그룹</a>
+                           data-toggle="dropdown" href="#">모델링</a>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="/module/sub1">서브 메뉴1</a>
-                            <a class="dropdown-item" href="/module/sub2">서브 메뉴2</a>
-                            <a class="dropdown-item" href="/module/sub3">서브 메뉴3</a>
+                            <a class="dropdown-item" href="/module/sub1">모델링1</a>
+                            <a class="dropdown-item" href="/module/sub2">모델링2</a>
+                            <a class="dropdown-item" href="/module/sub3">모델링3</a>
                         </div>
                     </li>
                     <div class="dropdown-divider"></div>
