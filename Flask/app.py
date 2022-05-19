@@ -1,26 +1,18 @@
 from flask import Flask, render_template, request
 from sklearn.metrics import r2_score, mean_squared_error
-from flask import current_app
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from bp_modue.Visualize import visual_bp
 from bp_modue.model1 import time_bp
 from xgboost import XGBRegressor
-from datetime import datetime
 import pickle
-import os, joblib
+import joblib
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# render_template  : 페이지 이동
-# request  : 주고받기
-# url_for  :
-
 app = Flask(__name__)
-#app.register_blueprint(visual_bp, url_prefix='/Visualize')
-#app.register_blueprint(time_bp, url_prefix='/model1')
 
 @app.route('/')
 def index():
@@ -38,7 +30,7 @@ def Population():
     return render_template('Visualize/Population.html', menu=menu)
 
 @app.route('/taxi/car', methods=['GET', 'POST'])
-def classify():
+def car():
     menu = {'ho': 0, 'm1': 0, 'm2': 0, 'm3': 1, 'm4': 0, 'm5': 0, 'm6' : 0}
     if request.method == 'GET':
         return render_template('module/m1_car.html', menu=menu)
@@ -89,35 +81,36 @@ def K_Means():
     menu = {'ho': 0, 'm1': 0, 'm2': 0, 'm3': 0, 'm4': 0, 'm5': 1, 'm6' : 0}
     return render_template('model1/K_Means.html', menu=menu)
 
-@app.route('/m2_time')
+@app.route('/time', methods=['GET', 'POST'])
 def m2_time():
     menu = {'ho': 0, 'm1': 0, 'm2': 0, 'm3': 0, 'm4': 0, 'm5': 0, 'm6' : 1}
     if request.method == 'GET':
         return render_template('model1/m2_time.html', menu=menu)
+
     else:
-        index = int(request.form['index'] or '0')
-        df = pd.read_csv('static/data/time_test.csv')
+        index2 = int(request.form['index2'] or '0')
+        df2 = pd.read_csv('static/data/time_test.csv')
 
-        test_data = df.iloc[index, :-1].values.reshape(1, -1)
-        label = df.iloc[index, -1]
+        test_data2 = df2.iloc[index2, :-1].values.reshape(1, -1)
+        label2 = df2.iloc[index2, -1]
 
-        lr = joblib.load('static/model/LR_time.pkl')
-        svr = joblib.load('static/model/SVR_time.pkl')
-        rfr = joblib.load('static/model/RFR_time.pkl')
-        dtr = joblib.load('static/model/DTR_time.pkl')
-        xgr = joblib.load('static/model/XGBR_time.pkl')
+        lr2 = joblib.load('static/model/LR_time.pkl')
+        svr2 = joblib.load('static/model/SVR_time.pkl')
+        rfr2 = joblib.load('static/model/RFR_time_local.pkl')
+        dtr2 = joblib.load('static/model/DTR_time.pkl')
+        xgr2 = XGBRegressor()  # 모델 초기화
+        xgr2.load_model('./static/model/XGBR_time.model')
 
-        pred_lr = lr.predict(test_data)
-        pred_sv = svr.predict(test_data)
-        pred_rf = rfr.predict(test_data)
-        pred_dt = dtr.predict(test_data)
-        pred_xgr = xgr.predict(test_data)
-        result = {'index': index, 'label': label,
-                  'pred_lr': pred_lr[0], 'pred_sv': pred_sv[0], 'pred_rf': pred_rf[0], 'pred_dt':pred_dt[0], 'pred_xgr':pred_xgr[0],
-                  'lr_score':(0.22), 'sv_score':(0.34), 'dt_score':(0.14),'rf_score':(0.43), 'xgr_score':(0.38)}
+        pred_lr2 = lr2.predict(test_data2)
+        pred_sv2 = svr2.predict(test_data2)
+        pred_rf2 = rfr2.predict(test_data2)
+        pred_dt2 = dtr2.predict(test_data2)
+        pred_xgr2 = xgr2.predict(test_data2)
+        result2 = {'index2': index2, 'label2': label2,
+                  'pred_lr2': pred_lr2[0], 'pred_sv2': pred_sv2[0], 'pred_rf2': pred_rf2[0], 'pred_dt2':pred_dt2[0], 'pred_xgr2':pred_xgr2[0],
+                  'lr_score2':(0.22), 'sv_score2':(0.34), 'dt_score2':(0.14),'rf_score2':(0.43), 'xgr_score2':(0.38)}
 
-        org = dict(zip(df.columns[:-1], test_data))
-    return render_template('model1/m2_time_res.html', menu=menu, org = org, res = result)
+        return render_template('model1/m2_time_res.html', menu= menu, res = result2)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
