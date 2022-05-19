@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block subtitle %}
+    <strong>장애인 콜택시 증차량 따른 평균 대기시간 예측모델</strong>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-10">
+            <table class="table table-striped">
+                <tr>
+                    <td>테스트 데이터셋 인덱스</td>
+                    <td style="text-align: center;">{{res.index}}</td>
+                    <td>레이블(타겟 값)</td>
+                    <td style="text-align: center;"><strong>{{res.label}}
+                    </strong></td>
+                </tr>
+            </table>
+            <table class="table table-striped">
+                <tr>
+                    <td style="text-align: center;">모델</td>
+                    <td style="text-align: center;">결정계수</td>
+                    <td style="text-align: center;">MSE</td>
+                    <td style="text-align: center;">예측값</td>
+                </tr>
+                <tr>
+                    <td>로지스틱 회귀 결과</td>
+                    <td style="text-align: center;"><strong>{{res.lr_score}} </strong></td>
+                    <td style="text-align: center;"><strong>{{res.lr_mse}} </strong></td>
+                    <td style="text-align: center;"><strong>{{res.pred_lr}} </strong></td>
+                </tr>
+                <tr>
+                    <td>서포트 벡터 머신 분류 결과</td>
+                    <td style="text-align: center;"><strong>{{res.sv_score}} </strong></td>
+                    <td style="text-align: center;"><strong>{{res.sv_mse}} </strong></td>
+                    <td style="text-align: center;"><strong>{{res.pred_sv}}</strong></td>
+                </tr>
+                <tr>
+                    <td>랜덤 포레스트 분류 결과</td>
+                    <td style="text-align: center;"><strong>{{res.rf_score}} </strong></td>
+                    <td style="text-align: center;"><strong>{{res.rf_mse}} </strong></td>
+                    <td style="text-align: center;"><strong>{{res.pred_rf}}</strong></td>
+                </tr>
+                <tr>
+                    <td>XGBR 분류 결과</td>
+                    <td style="text-align: center;"><strong>{{res.xgr_score}} </strong></td>
+                    <td style="text-align: center;"><strong>{{res.xgr_mse}} </strong></td>
+                    <td style="text-align: center;"><strong>{{res.pred_xgr}}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align: center;">
+                        <button class="btn btn-primary" 
+                                onclick="location.href='/taxi/car'">재실행</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-3"></div>
+    </div>
+{% endblock %}

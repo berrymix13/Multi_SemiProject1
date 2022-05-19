@@ -1,10 +1,14 @@
 from flask import Flask, render_template, request
+from sklearn.metrics import r2_score, mean_squared_error
 from flask import current_app
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from bp_modue.Visualize import visual_bp
+from bp_modue.model1 import time_bp
+from xgboost import XGBRegressor
 from datetime import datetime
+import pickle
 import os, joblib
 import numpy as np
 import pandas as pd
@@ -15,136 +19,105 @@ import matplotlib.pyplot as plt
 # url_for  :
 
 app = Flask(__name__)
-app.register_blueprint(visual_bp, url_prefix='/Visualize')
-# app.register_blueprint(visual_bp, url_prefix='/Visualize')
-# app.register_blueprint(visual_bp, url_prefix='/Visualize')
+#app.register_blueprint(visual_bp, url_prefix='/Visualize')
+#app.register_blueprint(time_bp, url_prefix='/model1')
 
 @app.route('/')
 def index():
-    menu = {'ho': 1, 'm1': 0, 'm2': 0, 'm3': 0}
+    menu = {'ho': 1, 'm1': 0, 'm2': 0, 'm3': 0, 'm4': 0, 'm5': 0, 'm6' : 0}
     return render_template('index.html', menu = menu)
 
-@app.route('/menu1', methods=['GET', 'POST'])
-def menu1():
-    menu = {'ho':0, 'm1':1, 'm2':0, 'm3':0}
-    if request.method == 'GET':
-        return render_template('menu1.html', menu=menu)
-    else:
-        text = request.form['text']
-        review = request.form['review'].replace('\n','<br>')
-        lang = request.form['lang']
-        return render_template('menu1_res.html', menu=menu,
-                               text=text, review=review, lang=lang)
+@app.route('/Taxi_move')
+def Taxi_move():
+    menu = {'ho': 0, 'm1': 1, 'm2': 0, 'm3': 0, 'm4': 0, 'm5': 0, 'm6': 0}
+    return render_template('Visualize/Taxi_move.html', menu=menu)
 
-@app.route('/menu2')
-def menu2():
-    menu = {'ho':0, 'm1':0, 'm2':1, 'm3':0}
-    items = [
-        {'id':1001, 'title':'HTML', 'content':'HTML is HyperText ...'},
-        {'id':1002, 'title':'CSS', 'content':'CSS is Cascading ...'},
-        {'id':1003, 'title':'JS', 'content':'JS is Javascript ...'},
-    ]
-    now = datetime.now()
-    np.random.seed(now.microsecond)
-    X = np.random.rand(100)
-    Y = np.random.rand(100)
-    plt.figure()
-    plt.scatter(X, Y)
-    img_file = os.path.join(current_app.root_path, 'static/img/menu2.png')
-    plt.savefig(img_file)
-    mtime = int(os.stat(img_file).st_mtime)
+@app.route('/Population')
+def Population():
+    menu = {'ho': 0, 'm1': 0, 'm2': 1, 'm3': 0, 'm4': 0, 'm5': 0, 'm6': 0}
+    return render_template('Visualize/Population.html', menu=menu)
 
-    return render_template('menu2.html', menu=menu, mtime=mtime,
-                            now=now.strftime('%Y-%m-%d %H:%M:%S.%f'), items=items)
-
-@app.route('/classify', methods=['GET', 'POST'])
+@app.route('/taxi/car', methods=['GET', 'POST'])
 def classify():
-    menu = {'ho':0, 'm1':0, 'm2':0, 'm3':0}
+    menu = {'ho': 0, 'm1': 0, 'm2': 0, 'm3': 1, 'm4': 0, 'm5': 0, 'm6' : 0}
     if request.method == 'GET':
-        return render_template('classify.html', menu=menu)
+        return render_template('module/m1_car.html', menu=menu)
     else:
         index = int(request.form['index'] or '0')
-        df = pd.read_csv('static/data/titanic_test.csv')
-        scaler = joblib.load('static/model/titanic_scaler.pkl')
-        test_data = df.iloc[index, :-1].values.reshape(1,-1)
+        df = pd.read_csv('static/data/car_test.csv')
+        scaler = joblib.load('static/model/car_scaler.pkl')
+        test_data = df.iloc[index, :-1].values.reshape(1, -1)
         test_scaled = scaler.transform(test_data)
-        label = df.iloc[index, 0]
-        lrc = joblib.load('static/model/titanic_lr.pkl')
-        svc = joblib.load('static/model/titanic_sv.pkl')
-        rfc = joblib.load('static/model/titanic_rf.pkl')
-        pred_lr = lrc.predict(test_scaled)
-        pred_sv = svc.predict(test_scaled)
-        pred_rf = rfc.predict(test_scaled)
+        label = df.iloc[index, -1]
+
+        x_test_sc = scaler.transform(np.array(df[['차량운행','접수건','탑승건']]))
+        y_test = df[['평균대기시간']]
+        lr = joblib.load('static/model/LR_car.pkl')
+        lr_score = r2_score(y_test, lr.predict(x_test_sc))
+        lr_mse = mean_squared_error(y_test, lr.predict(x_test_sc))
+
+        svr = joblib.load('static/model/svr_car.pkl')
+        svr_score = r2_score(y_test, svr.predict(x_test_sc))
+        svr_mse = mean_squared_error(y_test, svr.predict(x_test_sc))
+
+        rfr = joblib.load('static/model/rfr_car.pkl')
+        rfr_score = r2_score(y_test, rfr.predict(x_test_sc))
+        rfr_mse = mean_squared_error(y_test, rfr.predict(x_test_sc))
+
+        xgr = joblib.load('static/model/xgr_car.pkl')
+        xgr_score = r2_score(y_test, xgr.predict(x_test_sc))
+        xgr_mse = mean_squared_error(y_test, xgr.predict(x_test_sc))
+
+        pred_lr = lr.predict(test_scaled)
+        pred_sv = svr.predict(test_scaled)
+        pred_rf = rfr.predict(test_scaled)
+        pred_xgr = xgr.predict(test_scaled)
+
         result = {'index':index, 'label':label,
-                  'pred_lr':pred_lr[0], 'pred_sv':pred_sv[0], 'pred_rf':pred_rf[0]}
+                  'pred_lr':round(pred_lr[0],2), 'pred_sv': round(pred_sv[0],2), 'pred_rf':round(pred_rf[0],2), 'pred_xgr':round(pred_xgr[0],2),
+                  'lr_score':round(lr_score,2), 'sv_score':round(svr_score,2), 'rf_score':round(rfr_score,2), 'xgr_score':round(xgr_score,2),
+                  'lr_mse':round(lr_mse,2), 'sv_mse':round(svr_mse,2), 'rf_mse':round(rfr_mse,2), 'xgr_mse':round(xgr_mse,2)}
 
-        tmp = df.iloc[index, 1:].values
-        value_list = []
-        int_index_list = [0, 1, 3, 4, 6, 7]
-        for i in range(8):
-            if i in int_index_list:
-                value_list.append(int(tmp[i]))
-            else:
-                value_list.append(tmp[i])
-        org = dict(zip(df.columns[1:], value_list))
-        return render_template('classify_res.html', menu=menu, res=result, org=org)
+        return render_template('module/m1_car_res.html', menu=menu, res=result)
+@app.route('/hist')
+def hist():
+    menu = {'ho': 0, 'm1': 0, 'm2': 0, 'm3': 0, 'm4': 1, 'm5': 0, 'm6' : 0}
+    return render_template('model1/hist.html', menu=menu)
 
-@app.route('/cluster', methods=['GET', 'POST'])
-def cluster():
-    menu = {'ho':0, 'm1':0, 'm2':0, 'm3':0}
+@app.route('/K_Means')
+def K_Means():
+    menu = {'ho': 0, 'm1': 0, 'm2': 0, 'm3': 0, 'm4': 0, 'm5': 1, 'm6' : 0}
+    return render_template('model1/K_Means.html', menu=menu)
+
+@app.route('/m2_time')
+def m2_time():
+    menu = {'ho': 0, 'm1': 0, 'm2': 0, 'm3': 0, 'm4': 0, 'm5': 0, 'm6' : 1}
     if request.method == 'GET':
-        return render_template('cluster.html', menu=menu)
+        return render_template('model1/m2_time.html', menu=menu)
     else:
-        k_number = int(request.form['k_number'])
-        option = request.form['option']
-        if option == 'direct':
-            f_csv = request.files['csv']
-            file_csv = os.path.join(current_app.root_path, 'static/upload/') + f_csv.filename
-            f_csv.save(file_csv)
-            print(f"{k_number}, {f_csv}, {file_csv}")
-        else:
-            file_csv = os.path.join(current_app.root_path, 'static/clus_pca_data/') + option + '.csv'
+        index = int(request.form['index'] or '0')
+        df = pd.read_csv('static/data/time_test.csv')
 
-        df_csv = pd.read_csv(file_csv)
-        # 전처리 - 정규화
-        X_scaled = StandardScaler().fit_transform(df_csv.iloc[:, :-1])
+        test_data = df.iloc[index, :-1].values.reshape(1, -1)
+        label = df.iloc[index, -1]
 
-        # 차원 축소(PCA)
-        pca_array = PCA(n_components=2).fit_transform(X_scaled)
-        df = pd.DataFrame(pca_array, columns=['pca_x', 'pca_y'])
-        df['target'] = df_csv.iloc[:, -1].values
+        lr = joblib.load('static/model/LR_time.pkl')
+        svr = joblib.load('static/model/SVR_time.pkl')
+        rfr = joblib.load('static/model/RFR_time.pkl')
+        dtr = joblib.load('static/model/DTR_time.pkl')
+        xgr = joblib.load('static/model/XGBR_time.pkl')
 
-        # K-Means Clustering
-        kmeans = KMeans(n_clusters=k_number, init='k-means++', max_iter=300, random_state=2022)
-        kmeans.fit(X_scaled)
-        df['cluster'] = kmeans.labels_
+        pred_lr = lr.predict(test_data)
+        pred_sv = svr.predict(test_data)
+        pred_rf = rfr.predict(test_data)
+        pred_dt = dtr.predict(test_data)
+        pred_xgr = xgr.predict(test_data)
+        result = {'index': index, 'label': label,
+                  'pred_lr': pred_lr[0], 'pred_sv': pred_sv[0], 'pred_rf': pred_rf[0], 'pred_dt':pred_dt[0], 'pred_xgr':pred_xgr[0],
+                  'lr_score':(0.22), 'sv_score':(0.34), 'dt_score':(0.14),'rf_score':(0.43), 'xgr_score':(0.38)}
 
-        # 시각화
-        markers = ['s', 'o', '^', 'P', 'D', 'H', 'x']
-        plt.figure()
-        for i in df.target.unique():
-            marker = markers[i]
-            x_axis_data = df[df.target == i]['pca_x']
-            y_axis_data = df[df.target == i]['pca_y']
-            plt.scatter(x_axis_data, y_axis_data, marker=marker)
-        plt.title('Original Data', fontsize=15)
-        plt.xlabel('PCA 1'); plt.ylabel('PCA 2')
-        img_file = os.path.join(current_app.root_path, 'static/img/cluster0.png')
-        plt.savefig(img_file)
-
-        plt.figure()
-        for i in range(k_number):
-            marker = markers[i]
-            x_axis_data = df[df.cluster == i]['pca_x']
-            y_axis_data = df[df.cluster == i]['pca_y']
-            plt.scatter(x_axis_data, y_axis_data, marker=marker)
-        plt.xlabel('PCA 1'); plt.ylabel('PCA 2')
-        plt.title(f'{k_number} Clustering Result', fontsize=15)
-        img_file = os.path.join(current_app.root_path, 'static/img/cluster1.png')
-        plt.savefig(img_file)
-
-        mtime = int(os.stat(img_file).st_mtime)
-        return render_template('cluster_res.html', menu=menu, k_number=k_number, mtime=mtime)
+        org = dict(zip(df.columns[:-1], test_data))
+    return render_template('model1/m2_time_res.html', menu=menu, org = org, res = result)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

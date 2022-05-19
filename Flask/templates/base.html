@@ -48,38 +48,35 @@
                     <div class="dropdown-divider"></div>
                     <div class="dropdown-divider"></div>
                     <li class="nav-item">
-                        <a class="nav-link dropdown-toggle {% if menu.m1 %}active{% endif %}"
-                           data-toggle="dropdown" href="{% if menu.m1 %}#{% else %}/menu1{% endif %}">시각화</a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="/Visualize/Taxi_move">택시 이동</a>
-                            <a class="dropdown-item" href="/Visualize/Population">장애인 거주현황</a>
-                        </div>
+                        <a class="nav-link {% if menu.m1 %}active{% endif %}"
+                           href="{% if menu.m1 %}#{% else %}/Taxi_move{% endif %}">택시 이동</a>
                     </li>
                     <div class="dropdown-divider"></div>
                     <li class="nav-item">
-                        <a class="nav-link dropdown-toggle {% if menu.m2 %}active{% endif %}"
-                           data-toggle="dropdown" href="{% if menu.m2 %}#{% else %}/menu2{% endif %}">운행차량 증가 모델</a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="/module/sub1">대응표본 T검정</a>
-                            <a class="dropdown-item" href="/module/sub2">box plot</a>
-                            <a class="dropdown-item" href="/module/sub2">모델 실행</a>
-                        </div>
+                        <a class="nav-link {% if menu.m2 %}active{% endif %}"
+                           href="{% if menu.m2 %}#{% else %}/Population{% endif %}">장애인 거주현황</a>
                     </li>
                     <div class="dropdown-divider"></div>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {% if menu.m3 %}active{% endif %}"
-                           data-toggle="dropdown" href="#">대기시간 예측 모델</a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="/module/sub1">히스토그램</a>
-                            <a class="dropdown-item" href="/module/sub2">산점도</a>
-                            <a class="dropdown-item" href="/module/sub3">시간 군집화</a>
-                            <a class="dropdown-item" href="/module/sub3">모델 실행</a>
-                        </div>
+                    <li class="nav-item">
+                        <a class="nav-link {% if menu.m3 %}active{% endif %}"
+                           href="{% if menu.m3 %}#{% else %}/taxi/car{% endif %}">운행차량 증차 모델</a>
                     </li>
                     <div class="dropdown-divider"></div>
+                    <li class="nav-item">
+                        <a class="nav-link {% if menu.m4 %}active{% endif %}"
+                           href="{% if menu.m4 %}#{% else %}/hist{% endif %}">히스토그램</a>
+                    </li>
                     <div class="dropdown-divider"></div>
-
-
+                    <li class="nav-item">
+                        <a class="nav-link {% if menu.m5 %}active{% endif %}"
+                           href="{% if menu.m5 %}#{% else %}/K_Means{% endif %}">시간 군집화</a>
+                    </li>
+                    <div class="dropdown-divider"></div>
+                    <li class="nav-item">
+                        <a class="nav-link {% if menu.m6 %}active{% endif %}"
+                           href="{% if menu.m6 %}#{% else %}/m2_time{% endif %}">모델 실행</a>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-divider"></div>
                 </ul>
             </div>
             <div class="col-9">
